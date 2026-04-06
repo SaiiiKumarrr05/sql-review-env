@@ -1,0 +1,92 @@
+name: sql-review-env
+version: "1.0.0"
+description: >
+  A real-world OpenEnv environment where an AI agent reviews, fixes, and optimizes SQL queries.
+  Tasks range from fixing syntax errors (easy) to rewriting N+1 queries (medium) to
+  writing complex aggregation reports from scratch (hard).
+
+author: Saikumar Potturi
+tags:
+  - sql
+  - database
+  - code-review
+  - optimization
+  - real-world
+
+tasks:
+  - id: fix_syntax_error
+    name: Fix SQL Syntax Error
+    difficulty: easy
+    description: >
+      The agent is given a broken SQL query with typos (SELCT, FORM, WHER).
+      It must submit a corrected query that returns all Engineering employees with name and salary.
+    max_steps: 5
+    reward_range: [0.0, 1.0]
+
+  - id: optimize_n_plus_one
+    name: Optimize N+1 Query
+    difficulty: medium
+    description: >
+      The agent is given a correlated subquery (N+1 anti-pattern).
+      It must rewrite it using a JOIN. Result must have columns: employee_name, department, salary, budget.
+    max_steps: 5
+    reward_range: [0.0, 1.0]
+
+  - id: complex_aggregation
+    name: Complex Aggregation Report
+    difficulty: hard
+    description: >
+      The agent writes a complex aggregation query from scratch: department performance report
+      with total employees, average salary, active project count, and total hours.
+      Only departments with active projects included, ordered by total_hours DESC.
+    max_steps: 7
+    reward_range: [0.0, 1.0]
+
+interface:
+  reset_endpoint: /reset
+  step_endpoint: /step
+  state_endpoint: /state
+  tasks_endpoint: /tasks
+  health_endpoint: /health
+
+action_space:
+  type: text
+  description: A SQL query string submitted by the agent
+
+observation_space:
+  fields:
+    - name: task_id
+      type: string
+    - name: task_description
+      type: string
+    - name: schema_info
+      type: string
+    - name: original_query
+      type: string
+      optional: true
+    - name: expected_output_hint
+      type: string
+    - name: last_error
+      type: string
+      optional: true
+    - name: last_result_preview
+      type: string
+      optional: true
+    - name: step_number
+      type: integer
+    - name: max_steps
+      type: integer
+
+reward:
+  range: [0.0, 1.0]
+  shaped: true
+  description: >
+    Reward is shaped across the trajectory. Components: syntax correctness (0.1),
+    result correctness based on column match and row count (0.8), efficiency bonus for
+    avoiding subqueries in medium task (0.2), and a step penalty (-0.05 per step after step 2).
+
+runtime:
+  framework: fastapi
+  port: 7860
+  language: python
+  python_version: "3.11"
