@@ -1,3 +1,12 @@
+---
+title: SQL Review Env
+emoji: 🗄️
+colorFrom: blue
+colorTo: green
+sdk: docker
+pinned: false
+---
+
 # SQL Review & Optimization Environment
 
 An **OpenEnv-compatible** real-world environment where AI agents review, fix, and optimize SQL queries against a live SQLite database.
@@ -49,8 +58,6 @@ project_assignments(employee_id, project_id, role, hours_allocated)
 
 ## Reward Function
 
-Reward is shaped across the full episode trajectory:
-
 | Component | Weight | Description |
 |-----------|--------|-------------|
 | Syntax OK | 0.1 | Query runs without error |
@@ -65,41 +72,23 @@ All rewards normalized to **[0.0, 1.0]**.
 ## Setup & Usage
 
 ### Local
-
 ```bash
 pip install -r requirements.txt
 uvicorn server:app --host 0.0.0.0 --port 7860
 ```
 
 ### Docker
-
 ```bash
 docker build -t sql-review-env .
 docker run -p 7860:7860 sql-review-env
 ```
 
-### API
-
-```bash
-# Reset (task_index: 0=easy, 1=medium, 2=hard)
-curl -X POST http://localhost:7860/reset -H "Content-Type: application/json" -d '{"task_index": 0}'
-
-# Step
-curl -X POST http://localhost:7860/step -H "Content-Type: application/json" \
-  -d '{"query": "SELECT name, salary FROM employees WHERE department = '\''Engineering'\'' ORDER BY salary DESC"}'
-
-# State
-curl http://localhost:7860/state
-```
-
 ### Run Inference
-
 ```bash
 export HF_TOKEN=your_token
 export API_BASE_URL=https://router.huggingface.co/v1
 export MODEL_NAME=Qwen/Qwen2.5-72B-Instruct
 export ENV_BASE_URL=http://localhost:7860
-
 python inference.py
 ```
 
