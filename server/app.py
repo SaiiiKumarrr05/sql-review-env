@@ -11,4 +11,3 @@ def home():
 def reset():
     return {"status": "reset successful"}
 
-# 👇 your existing routes stay below
