@@ -1,8 +1,14 @@
-import uvicorn
-from server import app
+from fastapi import FastAPI
 
-def main():
-    uvicorn.run(app, host="0.0.0.0", port=7860)
+app = FastAPI()
 
-if __name__ == "__main__":
-    main()
+# ✅ ADD THIS
+@app.get("/")
+def home():
+    return {"message": "API is running"}
+
+@app.get("/reset")
+def reset():
+    return {"status": "reset successful"}
+
+# 👇 your existing routes stay below
